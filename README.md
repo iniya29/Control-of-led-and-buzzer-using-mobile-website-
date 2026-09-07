@@ -1,122 +1,121 @@
-# Control-of-led-and-buzzer-using-mobile-website-
-Create a professional and attractive GitHub README.md for an IoT project titled:
+Code :#include <WiFi.h>
+#include <WebServer.h>
 
-📱 Mobile App Controlled LED & Buzzer using ESP32
+const char* ssid = "YOUR_WIFI_NAME";
+const char* password = "YOUR_WIFI_PASSWORD";
 
-The project allows users to control an LED and buzzer remotely using a mobile application connected to an ESP32 through Wi-Fi.
+#define LED_PIN 2
+#define BUZZER_PIN 4
 
-Include the following sections:
+WebServer server(80);
 
-1. Project Overview
+bool ledState = false;
+bool buzzerState = false;
 
-Explain briefly how the ESP32 connects to Wi-Fi and communicates with a mobile app to control the LED and buzzer remotely.
+void handleRoot()
+{
+  String html = "<!DOCTYPE html>";
+  html += "<html>";
+  html += "<head>";
+  html += "<meta name='viewport' content='width=device-width, initial-scale=1'>";
+  html += "<title>ESP32 Control</title>";
 
-2. Features
+  html += "<style>";
+  html += "body{text-align:center;font-family:Arial;margin-top:50px;}";
+  html += "button{padding:20px 40px;margin:15px;font-size:20px;border-radius:10px;}";
+  html += "</style>";
 
-- 📱 Mobile app control
-- 💡 LED ON/OFF control
-- 🔔 Buzzer ON/OFF control
-- 📶 Wi-Fi connectivity
-- ⚡ Real-time control
-- 🛠️ Low-cost and simple implementation
+  html += "</head>";
+  html += "<body>";
 
-3. Components Required
+  html += "<h1>ESP32 Mobile Control</h1>";
 
-Create a table containing:
+  html += "<h2>LED</h2>";
+  html += "<a href='/led/on'><button>LED ON</button></a>";
+  html += "<a href='/led/off'><button>LED OFF</button></a>";
 
-- ESP32
-- LED
-- 220Ω resistor
-- Buzzer
-- Breadboard
-- Jumper wires
-- USB cable
-- Smartphone
+  html += "<h2>Buzzer</h2>";
+  html += "<a href='/buzzer/on'><button>Buzzer ON</button></a>";
+  html += "<a href='/buzzer/off'><button>Buzzer OFF</button></a>";
 
-4. Circuit Connections
+  html += "</body>";
+  html += "</html>";
 
-Provide a clear connection table with suitable ESP32 GPIO pins.
+  server.send(200, "text/html", html);
+}
 
-Example:
-| Component | ESP32 Pin |
-| LED | GPIO 2 |
-| Buzzer | GPIO 4 |
+void ledOn()
+{
+  digitalWrite(LED_PIN, HIGH);
+  ledState = true;
+  server.sendHeader("Location", "/");
+  server.send(303);
+}
 
-Mention that the LED must be connected through a suitable resistor.
+void ledOff()
+{
+  digitalWrite(LED_PIN, LOW);
+  ledState = false;
+  server.sendHeader("Location", "/");
+  server.send(303);
+}
 
-5. Software Requirements
+void buzzerOn()
+{
+  digitalWrite(BUZZER_PIN, HIGH);
+  buzzerState = true;
+  server.sendHeader("Location", "/");
+  server.send(303);
+}
 
-- Arduino IDE
-- ESP32 Board Package
-- Mobile IoT control app
-- Required libraries
+void buzzerOff()
+{
+  digitalWrite(BUZZER_PIN, LOW);
+  buzzerState = false;
+  server.sendHeader("Location", "/");
+  server.send(303);
+}
 
-6. Working Principle
+void setup()
+{
+  Serial.begin(115200);
 
-Explain the complete working process:
+  pinMode(LED_PIN, OUTPUT);
+  pinMode(BUZZER_PIN, OUTPUT);
 
-1. ESP32 connects to Wi-Fi.
-2. Mobile app connects to the ESP32/cloud IoT platform.
-3. User presses the LED or buzzer button in the mobile app.
-4. ESP32 receives the command.
-5. The corresponding GPIO pin changes state.
-6. LED or buzzer turns ON/OFF.
+  digitalWrite(LED_PIN, LOW);
+  digitalWrite(BUZZER_PIN, LOW);
 
-7. Mobile App
+  WiFi.begin(ssid, password);
 
-Explain how the mobile app interface can contain two controls:
+  Serial.print("Connecting to WiFi");
 
-- LED Control → ON/OFF
-- Buzzer Control → ON/OFF
+  while (WiFi.status() != WL_CONNECTED)
+  {
+    delay(500);
+    Serial.print(".");
+  }
 
-Also include a simple description of the recommended app UI.
+  Serial.println();
+  Serial.println("WiFi Connected!");
 
-8. Code
+  Serial.print("ESP32 IP Address: ");
+  Serial.println(WiFi.localIP());
 
-Add a complete, well-commented ESP32 Arduino code example for controlling the LED and buzzer from a mobile app. Use placeholders for Wi-Fi credentials and authentication tokens if required.
+  server.on("/", handleRoot);
 
-9. Project Structure
+  server.on("/led/on", ledOn);
+  server.on("/led/off", ledOff);
 
-Show an example:
+  server.on("/buzzer/on", buzzerOn);
+  server.on("/buzzer/off", buzzerOff);
 
-Mobile-LED-Buzzer-Control/
-│
-├── README.md
-├── src/
-│   └── mobile_led_buzzer.ino
-├── circuit/
-│   └── circuit_diagram.png
-└── images/
-    └── mobile_app.png
+  server.begin();
 
-10. Applications
+  Serial.println("Web Server Started!");
+}
 
-Mention practical applications such as:
-
-- Home automation
-- Smart classrooms
-- IoT demonstration projects
-- Remote alert systems
-- Smart security systems
-
-11. Future Improvements
-
-Include:
-
-- Multiple device control
-- Voice control
-- Sensor-based automation
-- Notification system
-- Bluetooth control
-- Scheduling
-- Web dashboard
-
-12. Author
-
-Add a section for the developer's name and GitHub profile using placeholders.
-
-13. License
-
-Add a simple MIT License section.
-
-Make the README visually attractive using emojis, tables, headings, code blocks, and badges where appropriate. Keep the technical explanation beginner-friendly and ensure all code and wiring information are internally consistent.
+void loop()
+{
+  server.handleClient();
+}
