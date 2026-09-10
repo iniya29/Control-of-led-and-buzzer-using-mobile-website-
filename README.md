@@ -112,10 +112,4 @@ Include:
 
 12. Author
 
-Add a section for the developer's name and GitHub profile using placeholders.
-
-13. License
-
-Add a simple MIT License section.
-
-Make the README visually attractive using emojis, tables, headings, code blocks, and badges where appropriate. Keep the technical explanation beginner-friendly and ensure all code and wiring information are internally consistent.
+Iniya N Jayashree S Jeevashree C
